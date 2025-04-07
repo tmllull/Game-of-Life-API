@@ -4,14 +4,13 @@ import random
 import src.utils.messages as msgs
 import src.utils.prompts as prompts
 from sqlalchemy import func
-from src.database import models
+from src.database import models as db_models
 from src.database.database import SessionLocal
 from src.game_of_life.ecosystem import Ecosystem
 from src.utils import logger as logger
 from src.utils.config import Config
 from src.utils.my_utils import MyUtils
-from telegram import Update
-from telegram.ext import ContextTypes
+from src.models import models
 
 utils = MyUtils()
 config = Config()
@@ -23,75 +22,43 @@ class GameOfLife:
     def __init__(self):
         logger.info("Starting game of life...")
 
-    async def check_evolution(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if not utils.check_valid_chat(update):
-            logger.info("Invalid chat")
-            chat_id = update.message.chat_id
-            await utils.leave_chat(chat_id, random.choice(utils.leaving_gifs))
-            return
-
+    async def check_evolution(self, request: models.EvolutionRequest):
         try:
-            user_id, user_first_name, username, message = self.extract_user_info(
-                update.message
-            )
-            user_db = self.get_user_from_db(user_id)
             ecosystems_db = self.get_ecosystems_count()
             ecosystem_alive = self.get_alive_ecosystem()
 
             if ecosystem_alive is None or ecosystems_db == 0:
-                await self.handle_new_ecosystem(user_id, user_db, username, message)
+                logger.info("No ecosystems alive")
+                return await self.handle_new_ecosystem(request)
             else:
-                await self.handle_ecosystem_evolution(
-                    username, user_id, user_db, ecosystem_alive
-                )
-            db.commit()
-            db.close()
+                logger.info("Ecosystem alive")
+                return await self.handle_ecosystem_evolution(ecosystem_alive, request)
 
         except Exception as e:
-            db.close()
-            logger.error(e)
-
-    def extract_user_info(self, message):
-        return (
-            message.from_user.id,
-            message.from_user.first_name,
-            message.from_user.username,
-            message,
-        )
-
-    def get_user_from_db(self, user_id):
-        user_db = db.query(models.User).filter(models.User.id == user_id).first()
-        if not user_db:
-            new_user = models.User(
-                id=user_id,
-                ecosystems_created=0,
-                ecosystems_killed=0,
-                ecosystems_evolved=0,
-            )
-            db.merge(new_user)
-            db.commit()
-            user_db = db.query(models.User).filter(models.User.id == user_id).first()
-        return user_db
+            # db.close()
+            logger.error(f"Error on check evolution: {e}")
 
     def get_ecosystems_count(self):
-        return db.query(func.count(models.Ecosystem.id)).scalar()
+        return db.query(func.count(db_models.Ecosystem.id)).scalar()
 
     def get_alive_ecosystem(self):
         return (
-            db.query(models.Ecosystem)
+            db.query(db_models.Ecosystem)
             .filter(
-                models.Ecosystem.born_date != None,
-                models.Ecosystem.extinction_date == None,
+                db_models.Ecosystem.born_date != None,
+                db_models.Ecosystem.extinction_date == None,
             )
             .first()
         )
 
-    async def handle_new_ecosystem(self, user_id, user_db, username, message):
+    async def handle_new_ecosystem(self, request: models.EvolutionRequest):
+        logger.info("Is a new ecosystem possible?")
         if random.random() < config.NEW_ECO_PROB:
-            await self.create_new_ecosystem(user_id, user_db, username, message)
+            logger.info("Creating new ecosystem...")
+            return await self.create_new_ecosystem(request)
 
     async def handle_ecosystem_evolution(
-        self, username, user_id, user_db, ecosystem_alive
+        self, ecosystem_alive, request: models.EvolutionRequest
     ):
         ecosystem_id = ecosystem_alive.id
         messages = ecosystem_alive.messages
@@ -99,7 +66,6 @@ class GameOfLife:
         current_ecosystem = ast.literal_eval(ecosystem_alive.ecosystem)
         evolutions = ecosystem_alive.evolutions
         probability = messages * config.PROB_PER_MESSAGE
-
         if random.random() < probability:
             new_ecosystem, died_by_epidemic = ecosystem.evolution(
                 current_ecosystem, evolutions
@@ -109,19 +75,15 @@ class GameOfLife:
                 all(elem == " " for elem in sublist) for sublist in new_ecosystem
             )
             if ecosystem_died:
-                await self.kill_ecosystem(
-                    user_id,
-                    user_db,
+                return await self.kill_ecosystem(
                     ecosystem_id,
                     died_by_epidemic,
                     messages,
                     total_messages,
-                    username,
+                    request,
                 )
             else:
-                await self.evolution(
-                    user_id,
-                    user_db,
+                return await self.evolution(
                     ecosystem_id,
                     total_messages,
                     new_ecosystem,
@@ -131,45 +93,48 @@ class GameOfLife:
             ecosystem_alive.messages += 1
             ecosystem_alive.total_messages += 1
             db.merge(ecosystem_alive)
+            # db.close()
 
-    async def create_new_ecosystem(self, user_id, user_db, username: str, message: str):
+    async def create_new_ecosystem(self, request: models.EvolutionRequest):
+        ecosystem = Ecosystem()
+        message = request.message
+        user = request.user
         logger.info("Creating new ecosystem...")
         msg = msgs.ECOSYSTEM_CREATED
         logger.info(msg)
-        new_ecosystem = ecosystem.new_ecosystem(username + str(message))
+        new_ecosystem = ecosystem.new_ecosystem(user + str(message))
         logger.info(new_ecosystem)
-        ecosystem_to_add = models.Ecosystem(
+        ecosystem_to_add = db_models.Ecosystem(
             ecosystem=str(new_ecosystem),
             messages=0,
             total_messages=0,
             evolutions=0,
             born_date=utils.get_date(),
-            creator=username,
+            creator=user,
         )
-        update_user = models.User(
-            id=user_id,
-            ecosystems_created=user_db.ecosystems_created + 1,
-        )
+        logger.info("Saving new ecosystem to database...")
         db.merge(ecosystem_to_add)
-        # db.commit()
-        db.merge(update_user)
-        # db.commit()
-        await utils.send_message(
+        logger.info("New ecosystem saved to database")
+        db.commit()
+        msg = await utils.prepare_message(
             msg,
             prompt=prompts.ECOSYSTEM_BORN,
         )
-        await utils.send_message(ecosystem.format_ecosystem(new_ecosystem))
+        ecosystem = await utils.prepare_message(
+            ecosystem.format_ecosystem(new_ecosystem)
+        )
+        # db.close()
+        return msg, ecosystem
 
     async def kill_ecosystem(
         self,
-        user_id,
-        user_db,
         ecosystem_id,
         died_by_epidemic,
         messages,
         total_messages,
-        username,
+        request: models.EvolutionRequest,
     ):
+        ecosystem = Ecosystem()
         prompt = prompts.ECOSYSTEM_DIE
         if died_by_epidemic:
             msg = msgs.EPIDEMIC
@@ -177,50 +142,46 @@ class GameOfLife:
         else:
             msg = msgs.ECOSYSTEM_DIED
         logger.info(msg)
-        update_user = models.User(
-            id=user_id,
-            ecosystems_killed=user_db.ecosystems_killed + 1,
-        )
-        died_ecosystem = models.Ecosystem(
+        died_ecosystem = db_models.Ecosystem(
             id=ecosystem_id,
             messages=messages + 1,
             total_messages=total_messages + 1,
             extinction_date=utils.get_date(),
-            killer=username,
+            killer=request.user,
         )
         db.merge(died_ecosystem)
-        # db.commit()
-        db.merge(update_user)
-        # db.commit()
-        await utils.send_message(
+        db.commit()
+        msg = await utils.prepare_message(
             msg,
             prompt=prompt,
         )
-        await utils.send_message(ecosystem.format_ecosystem(ecosystem.died_ecosystem()))
+        ecosystem = await utils.prepare_message(
+            ecosystem.format_ecosystem(ecosystem.died_ecosystem())
+        )
+        # db.close()
+        return msg, ecosystem
 
-    async def evolution(
-        self, user_id, user_db, ecosystem_id, total_messages, new_ecosystem, evolutions
-    ):
+    async def evolution(self, ecosystem_id, total_messages, new_ecosystem, evolutions):
+        ecosystem = Ecosystem()
         msg = msgs.EVOLUTION
         logger.info(msg)
         evolutions += 1
-        ecosystem_alive = models.Ecosystem(
+        ecosystem_alive = db_models.Ecosystem(
             id=ecosystem_id,
             ecosystem=str(new_ecosystem),
             messages=0,
             total_messages=total_messages + 1,
             evolutions=evolutions,
         )
-        update_user = models.User(
-            id=user_id,
-            ecosystems_evolved=user_db.ecosystems_evolved + 1,
-        )
+
         db.merge(ecosystem_alive)
-        # db.commit()
-        db.merge(update_user)
-        # db.commit()
-        await utils.send_message(
+        db.commit()
+        msg = await utils.prepare_message(
             msg,
             prompt=prompts.ECOSYSTEM_EVOLUTION,
         )
-        await utils.send_message(ecosystem.format_ecosystem(new_ecosystem))
+        ecosystem = await utils.prepare_message(
+            ecosystem.format_ecosystem(new_ecosystem)
+        )
+        # db.close()
+        return msg, ecosystem

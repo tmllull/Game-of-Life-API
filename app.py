@@ -1,24 +1,26 @@
-from src.database import models
+from src.database import models as db_models
 from src.database.database import engine
 from src.game_of_life.game_of_life import GameOfLife
 from src.utils.config import Config
-from telegram.ext import Application, ApplicationBuilder, MessageHandler
+from src.models import models as py_models
+from typing import Union
+
+from fastapi import FastAPI
+
 
 gol = GameOfLife()
 
 config = Config()
-models.Base.metadata.create_all(bind=engine)
+db_models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
 
 
-async def post_init(application: Application):
-    await application.bot.set_my_commands([])
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 
-def main() -> None:
-    app = ApplicationBuilder().token(config.TELEGRAM_TOKEN).post_init(post_init).build()
-    app.add_handler(MessageHandler(None, gol.check_evolution))
-    app.run_polling()
-
-
-if __name__ == "__main__":
-    main()
+@app.post("/evolve")
+async def evolve(request: py_models.EvolutionRequest):
+    return await gol.check_evolution(request)

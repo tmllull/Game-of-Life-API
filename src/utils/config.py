@@ -8,15 +8,6 @@ class Config:
         try:
             # Load .env
             config = dotenv_values(".env")
-            self.TELEGRAM_TOKEN = config.get(
-                "TELEGRAM_TOKEN", os.environ.get("TELEGRAM_TOKEN")
-            )
-            self.TELEGRAM_CHAT_ID = config.get(
-                "TELEGRAM_CHAT_ID", os.environ.get("TELEGRAM_CHAT_ID")
-            )
-            self.TELEGRAM_ADMIN_CHAT_ID = config.get(
-                "TELEGRAM_ADMIN_CHAT_ID", os.environ.get("TELEGRAM_ADMIN_CHAT_ID")
-            )
             self.AI_SERVICE = config.get("AI_SERVICE", os.environ.get("AI_SERVICE"))
             self.OPENAI_API_KEY = config.get(
                 "OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY")

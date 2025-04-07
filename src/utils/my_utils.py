@@ -3,11 +3,9 @@ import os
 import random
 
 import src.utils.logger as logger
-import telegram
 from src.clients.ai_controller import AIController
 from src.database.database import SessionLocal
 from src.utils.config import Config
-from telegram import Bot, Update
 
 config = Config()
 ai_controller = AIController()
@@ -26,46 +24,8 @@ class MyUtils:
 
     def __init__(self, db: SessionLocal = None):
         self.db = db
-        self.bot = Bot(config.TELEGRAM_TOKEN)
-        self.leaving_gifs = [
-            "CgACAgQAAx0CboIgbAACDO9mGWRx5aGU3t41YI9Yq09Bpr4VUgAC9wIAAlx1hVOKzWaxi1UfPjQE",
-            "CgACAgQAAx0CboIgbAACDPJmGWWyJoHT8j3LujDLI1yGGqKtrQAC9QIAAuIXBFOxPQS1SLBLHDQE",
-            "CgACAgQAAx0CboIgbAACDPNmGWXLAzWDlvIjK4RguK-0RMWBeQACIAMAAjG9JFOis1aOwCU45TQE",
-            "CgACAgQAAx0CboIgbAACDPZmGWXqPTo5LhYS8cv2NHGhxWH8LwACMAMAAnxsFFPbZIBe-cVFwTQE",
-        ]
-        # if config.AI_SERVICE == "openai":
-        #     self._ai_service = open_ai
-        # elif config.AI_SERVICE == "azure":
-        #     self._ai_service = azure_openai
-        # else:
-        #     self._ai_service = None
-        # self.chat_id = self.TELEGRAM_CHAT_ID
 
-    def check_valid_chat(self, update: Update) -> bool:
-        try:
-            # logger.info(update.message)
-            username = update.message.from_user.username
-            user_id = update.message.from_user.id
-            chat_id = update.message.chat_id
-            if chat_id < 0:
-                if chat_id != int(config.TELEGRAM_CHAT_ID):
-                    # await self.leave_chat(chat_id, random.choice(leaving_gifs))
-                    return False
-                return True
-            return False
-        except Exception as e:
-            logger.info("Error checking valid chat: " + str(e))
-
-    async def leave_chat(self, chat_id, gif_id):
-        async with self.bot:
-            await self.bot.send_animation(
-                chat_id=chat_id,
-                animation=gif_id,
-            )
-            await self.bot.leave_chat(chat_id=chat_id)
-        # return
-
-    async def send_message(self, msg=None, prompt=None):
+    async def prepare_message(self, msg=None, prompt=None):
         if prompt is not None and ai_controller.has_service:
             try:
                 logger.info("Generating text by AI...")
@@ -76,27 +36,11 @@ class MyUtils:
                 # msg = msg
         # else:
         #     logger.info("Sending default message...")
+        msg = self.format_text_for_md2(msg)
+        return msg
 
-        async with self.bot:
-            msg = self.format_text_for_md2(msg)
-            await self.bot.send_message(
-                chat_id=config.TELEGRAM_CHAT_ID,
-                text=msg,
-                parse_mode=telegram.constants.ParseMode.MARKDOWN_V2,
-            )
-
-    def format_text_for_md2(self, text):
-        text = (
-            text.replace(".", "\.")
-            .replace("!", "\!")
-            .replace("-", "\-")
-            .replace("+", "\+")
-            .replace("=", "\=")
-            .replace("(", "\(")
-            .replace(")", "\)")
-            .replace("[", "\[")
-            .replace("]", "\]")
-        )
+    def format_text_for_md2(self, text: str):
+        # Comes from old code. Just keeps the text as is for now.
         return text
 
     def get_date(self) -> datetime.date:

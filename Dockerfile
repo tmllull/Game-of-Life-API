@@ -1,12 +1,9 @@
-FROM python:3.11-slim-buster
+FROM python:3.13-slim-bookworm
 
 WORKDIR /app
 
-RUN python3 -m pip install --upgrade pip
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
-
 COPY . .
 
-CMD ["app.py"]
-ENTRYPOINT ["python3"]
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+CMD ["uvicorn", "app:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "5000"]

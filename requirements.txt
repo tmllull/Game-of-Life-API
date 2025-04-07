@@ -1,4 +1,3 @@
-python_telegram_bot==20.1
 python-dotenv
 sqlalchemy
 openai
