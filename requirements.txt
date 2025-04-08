@@ -2,3 +2,4 @@ python-dotenv
 sqlalchemy
 openai
 fastapi[standard]
+google-generativeai

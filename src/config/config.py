@@ -28,6 +28,12 @@ class Config:
             self.AZURE_MODEL_NAME = config.get(
                 "AZURE_MODEL_NAME", os.environ.get("AZURE_MODEL_NAME")
             )
+            self.GOOGLE_API_KEY = config.get(
+                "GOOGLE_API_KEY", os.environ.get("GOOGLE_API_KEY")
+            )
+            self.GOOGLE_MODEL = config.get(
+                "GOOGLE_MODEL", os.environ.get("GOOGLE_MODEL")
+            )
             self.ROWS = int(config.get("ROWS", os.environ.get("ROWS")))
             self.COLUMNS = int(config.get("COLUMNS", os.environ.get("COLUMNS")))
             self.INITIAL_FLORA = int(

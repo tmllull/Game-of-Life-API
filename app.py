@@ -3,7 +3,6 @@ from src.config.database import engine
 from src.game_of_life.game_of_life import GameOfLife
 from src.config.config import Config
 from src.models import models as py_models
-from typing import Union
 from src.auth import auth
 
 from fastapi import FastAPI, Security
