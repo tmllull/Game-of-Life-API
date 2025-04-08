@@ -52,3 +52,24 @@
 2025-04-08 06:16:57,206 | INFO | [[' ', ' ', '🌱', ' ', ' '], [' ', '🦦', ' ', '🦁', ' '], [' ', ' ', ' ', ' ', ' '], ['🐝', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ']]
 2025-04-08 06:16:57,207 | INFO | Saving new ecosystem to database...
 2025-04-08 06:16:57,208 | INFO | New ecosystem saved to database
+2025-04-08 06:19:35,508 | INFO | AI_SERVICE is not set
+2025-04-08 06:19:36,042 | INFO | Starting game of life...
+2025-04-08 06:19:38,515 | INFO | Ecosystem alive
+2025-04-08 06:19:40,666 | INFO | Ecosystem alive
+2025-04-08 06:19:40,667 | INFO | Probability that ecosystem die: 0.02
+2025-04-08 06:19:40,668 | INFO | Ecosystem still alive...
+2025-04-08 06:19:40,669 | INFO | Organism 🌱 still alive...
+2025-04-08 06:19:40,670 | INFO | 🌱 (2) vs ['🦦', '🦁'] (3.5) => 0.28571428571428575
+2025-04-08 06:19:40,670 | INFO | Organism 🌱 devoured by ['🦦', '🦁']
+2025-04-08 06:19:40,671 | INFO | Organism 🦦 died because of overpopulation or underpopulation
+2025-04-08 06:19:40,672 | INFO | Organism 🦁 died because of overpopulation or underpopulation
+2025-04-08 06:19:40,673 | INFO | Organism 🐝 died because of overpopulation or underpopulation
+2025-04-08 06:19:40,674 | INFO | [[' ', ' ', ' ', ' ', ' '], [' ', ' ', '🦔', ' ', ' '], [' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ']]
+2025-04-08 06:19:40,674 | INFO | Ecosystem evolving...
+2025-04-08 06:19:56,795 | INFO | Ecosystem alive
+2025-04-08 06:19:58,745 | INFO | Ecosystem alive
+2025-04-08 06:19:58,746 | INFO | Probability that ecosystem die: 0.021
+2025-04-08 06:19:58,747 | INFO | Ecosystem still alive...
+2025-04-08 06:19:58,748 | INFO | Organism 🦔 died because of overpopulation or underpopulation
+2025-04-08 06:19:58,749 | INFO | [[' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ']]
+2025-04-08 06:19:58,750 | INFO | The ecosystem has died

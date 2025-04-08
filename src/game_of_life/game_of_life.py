@@ -129,11 +129,17 @@ class GameOfLife:
             msg,
             prompt=prompts.ECOSYSTEM_BORN,
         )
+        updated_ecosystem = (
+            db.query(db_models.Ecosystem)
+            .filter(db_models.Ecosystem.id == ecosystem_to_add.id)
+            .first()
+        )
+
         # ecosystem = await utils.prepare_message(
         #     ecosystem.format_ecosystem(new_ecosystem)
         # )
         # db.close()
-        return msg, new_ecosystem, ecosystem_to_add
+        return msg, new_ecosystem, updated_ecosystem
 
     async def kill_ecosystem(
         self,
@@ -164,11 +170,16 @@ class GameOfLife:
             msg,
             prompt=prompt,
         )
+        updated_ecosystem = (
+            db.query(db_models.Ecosystem)
+            .filter(db_models.Ecosystem.id == ecosystem_id)
+            .first()
+        )
         # ecosystem = await utils.prepare_message(
         #     ecosystem.format_ecosystem(ecosystem.died_ecosystem())
         # )
         # db.close()
-        return msg, ecosystem.died_ecosystem(), died_ecosystem
+        return msg, ecosystem.died_ecosystem(), updated_ecosystem
 
     async def evolution(self, ecosystem_id, total_messages, new_ecosystem, evolutions):
         # ecosystem = Ecosystem()
@@ -189,8 +200,14 @@ class GameOfLife:
             msg,
             prompt=prompts.ECOSYSTEM_EVOLUTION,
         )
+        updated_ecosystem = (
+            db.query(db_models.Ecosystem)
+            .filter(db_models.Ecosystem.id == ecosystem_id)
+            .first()
+        )
+
         # ecosystem = await utils.prepare_message(
         #     ecosystem.format_ecosystem(new_ecosystem)
         # )
         # db.close()
-        return msg, new_ecosystem, ecosystem_alive
+        return msg, new_ecosystem, updated_ecosystem
