@@ -2,5 +2,8 @@ __pycache__
 .env
 *.db
 *.log
+*.sqlite
 venv
 test.py
+logs/
+daatabase/

@@ -1,36 +1,40 @@
-# Telegram Game of Life Bot
-Another useless Telegram Bot.
+# Game of Life API
 
 ## About
-This project is an implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) using a Telegram bot. The Game of Life is a cellular automaton devised by the British mathematician John Horton Conway in 1970. It is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input.
+
+This project is an implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) using an API. The Game of Life is a cellular automaton devised by the British mathematician John Horton Conway in 1970. It is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input.
 
 ## How it works
+
 TL;DR;
 
-Every message sent to the group can start the process to create a new ecosystem or evolve the current ecosystem. The ecosystem can die because of the normal algorithm or custom variations. An organism can die because of the normal algorithm or custom variations. Every new ecosystem, evolution or die (of the entire ecosystem, not organism) will be notified to the group. End.
+The API receive a request with a message and who send this message. Every request can starts the process to create a new ecosystem or evolve the current ecosystem. The ecosystem can die because of the normal algorithm or custom variations. An organism can die because of the normal algorithm or custom variations. Every new ecosystem, evolution or die (of the entire ecosystem, not organism) will be notified to the group. End.
 
 ---
 
-In this implementation, every message sent to the group where the bot is added can start the evolution process based on some probabilities.
-
-When a message is sent to the group, different actions come into play:
+In this implementation, every request can starts the evolution process based on some probabilities, and different actions come into play:
 
 NOTE: all the probabilities can be set on .env file.
 
 ### New ecosystem
+
 If there are no ecosystem alive, the probability of a new ecosystem being born is 20% by default. This offers some uncertainty in not knowing when a new ecosystem will be created.
 
 By default, the size is 5x5, and up to 3 organisms of every group (Flora and Fauna) can be born.
 
 ### Evolution
+
 When there is a living ecosystem, the probability of new evolution depends on the number of the messages received after new ecosystem born. By default, every message increase 1% this probability, so, at least every 100 messages the ecosystem will evolve.
 
 When a new evolution occurs, there are again some actions:
+
 #### Ecosystem
+
 - By default, there is a 2% that the entire ecosystem die (epidemic, meteorite, natural disaster...)
 - Every evolution can increase this probability, in order to add some "oldness" or "degradation". By default, every evolution increases 0,1%.
 
 #### Organisms
+
 When an ecosystem evolve, the basic algorithm for "Game of Life" starts, but with some additions.
 
 In this implementation, there are not only "organisms" in general; there are 2 main groups: Flora and Fauna. And there are a "free" interpretations about the "Trophic levels". In addition, every level has a "survival" value (1 to 4), that represents the probability to survive in the entire ecosystem. For example, a flower is more fragile than a wolf.
@@ -52,6 +56,7 @@ _Level3_: bigger animals, like pigs, cows, monkeys, giraffes, elephants... These
 _Level4_: basically, big predators and mostly carnivores, like lions, tigers, sneaks, wolfs... The survival level is 4.
 
 With this, when the basic algorithm determine that an organism keep alive, the following actions starts:
+
 - The neighbors are relevant. In resume, if neighbors are more dangerous than the organism, the organism can be devoured, and the probabilities to survive are as follow (home made calculations):
 
   - Calculate the average "survival_value" for all the neighbors, but take in account only those values equal or higher than the organism. For example, if there are 3 neighbors with values 1, 3 and 4, and the "survival_value" for the organism is 2, only 3 and 4 will be used, but this value will be divided by 3 (the other organisms can be devoured instead of you).
@@ -61,17 +66,12 @@ With this, when the basic algorithm determine that an organism keep alive, the f
 - If the organism is not devoured or die suddenly, stays alive.
 
 ## Data storage
-The data for all the ecosystem management is stored in SQLite. There are, for now, 2 tables: `users` and `ecosystems`:
 
-- Users: 
-  - ID: Telegram user ID
-  - Ecosystems created: number of ecosystems born thanks to a message from him/her
-  - Ecosystems evolved: number of ecosystems evolved thanks to a message from him/her
-  - Ecosystems killed: number of ecosystems died thanks to a message from him/her
+The data for all the ecosystem management is stored in SQLite. There are, for now, 1 table: `ecosystems`:
 
-- Ecosystems: 
+- Ecosystems:
   - ID: autogenerated ID
-  - Ecosystem: the current ecosystem, to be able to recover it in case the bot stops. It also serves to know the state in which the ecosystem was when it died.
+  - Ecosystem: the current ecosystem, to be able to recover it. It also serves to know the state in which the ecosystem was when it died.
   - Evolutions: records the total number of evolutions (used in some probabilities)
   - Messages: records the number of messages received since the last evolution of the ecosystem (used in some probabilities)
   - Total messages: records the total messages that have been received since the creation of the ecosystem
@@ -83,6 +83,7 @@ The data for all the ecosystem management is stored in SQLite. There are, for no
 The idea is that all this data can be exported, and extract some statistics (for fun).
 
 ## GenAI integration
+
 GenAI? What can the GenAI do in an simple algorithm to create end destroy ecosystems?
 
 By default, when some events occurs, a message is sent to the group. For example, "New ecosystem is being born...", "The ecosystem has died" or "Ecosystem evolving...".
@@ -93,7 +94,12 @@ This feature is in beta, so, you know. And for now, there are options to user Op
 
 The prompts and pre-prompts are defined on `utils/prompts`
 
+## Future ideas
+
+Using GenAI, there are in mind some ideas, like to add "sentimental analysis" to the message and increase or decrease the probabilities based on this. For example, a happy message can reduce the probabilities to die (or increase to be alive), and viceserva.
+
 ## How to use
+
 The recommended use is using Docker:
 
 1. Clone the project
@@ -112,6 +118,7 @@ If you want to run directly with Python:
 6. Wait for your ecosystem to be born, and enjoy.
 
 ## Some links
+
 The probabilities defined may seem chosen randomly, and in some ways they are, but not entirely. Here are some links:
 
 - https://www.nature.com/articles/d43978-021-00105-7

@@ -18,7 +18,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def read_root():
+def read_root(api_key: str = Security(auth.get_api_key)):
     return {"Hello": "World"}
 
 
