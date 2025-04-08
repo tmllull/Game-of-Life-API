@@ -111,7 +111,7 @@ The recommended use is using Docker:
 ### Docker Compose
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 ### Docker run
