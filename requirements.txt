@@ -3,3 +3,5 @@ sqlalchemy
 openai
 fastapi[standard]
 google-generativeai
+uvicorn[standard]
+gunicorn

@@ -108,13 +108,27 @@ The recommended use is using Docker:
 4. Run docker compose with `docker compose up -d`
 5. Wait for your ecosystem to be born, and enjoy.
 
+### Docker Compose
+
+```bash
+docker compose up --build
+```
+
+### Docker run
+
+```bash
+# Dev
+docker build -t game_of_life_api --build-arg WORKERS=1 --build-arg PORT=5000 .
+docker run -e PORT=5000 -e WORKERS=1 -p 5000:5000 game_of_life_api
+```
+
 If you want to run directly with Python:
 
 1. Clone the project
 2. Rename .env.template file to .env
 3. Fill the required parameters on .env, and change the probabilities if you want.
 4. Run `pip install -r requirements.txt`
-5. Run `python app.py`
+5. Run `uvicorn app:app --port 5000` (this is for dev. If you want to deploy for prod, run the same command from CMD on Dockerfile)
 6. Wait for your ecosystem to be born, and enjoy.
 
 ## Some links
