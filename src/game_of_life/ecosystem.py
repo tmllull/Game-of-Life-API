@@ -1,13 +1,14 @@
 import random
 
-import src.utils.logger as logger
+from src.utils.logger import LogManager
 from src.game_of_life.organisms import Organisms
-from src.utils.config import Config
+from src.config.config import Config
 
 organisms = Organisms()
 flora = organisms.Flora()
 fauna = organisms.Fauna()
 config = Config()
+logger = LogManager()
 
 
 class Ecosystem:

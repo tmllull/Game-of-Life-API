@@ -5,10 +5,10 @@ import src.utils.messages as msgs
 import src.utils.prompts as prompts
 from sqlalchemy import func
 from src.database import models as db_models
-from src.database.database import SessionLocal
+from src.config.database import SessionLocal
 from src.game_of_life.ecosystem import Ecosystem
-from src.utils import logger as logger
-from src.utils.config import Config
+from src.utils.logger import LogManager
+from src.config.config import Config
 from src.utils.my_utils import MyUtils
 from src.models import models
 
@@ -16,6 +16,7 @@ utils = MyUtils()
 config = Config()
 db = SessionLocal()
 ecosystem = Ecosystem()
+logger = LogManager()
 
 
 class GameOfLife:
@@ -30,9 +31,16 @@ class GameOfLife:
             if ecosystem_alive is None or ecosystems_db == 0:
                 logger.info("No ecosystems alive")
                 return await self.handle_new_ecosystem(request)
+                # db.query(db_models.Ecosystem).filter(
+                #     db_models.Ecosystem.id == new_acosystem.id
+                # )
+
             else:
                 logger.info("Ecosystem alive")
                 return await self.handle_ecosystem_evolution(ecosystem_alive, request)
+                # db.query(db_models.Ecosystem).filter(
+                #     db_models.Ecosystem.id == ecosystem_alive.id
+                # )
 
         except Exception as e:
             # db.close()
@@ -93,6 +101,7 @@ class GameOfLife:
             ecosystem_alive.messages += 1
             ecosystem_alive.total_messages += 1
             db.merge(ecosystem_alive)
+            return "No evolution happened, but ecosystem is still alive.", None, None
             # db.close()
 
     async def create_new_ecosystem(self, request: models.EvolutionRequest):
@@ -120,11 +129,11 @@ class GameOfLife:
             msg,
             prompt=prompts.ECOSYSTEM_BORN,
         )
-        ecosystem = await utils.prepare_message(
-            ecosystem.format_ecosystem(new_ecosystem)
-        )
+        # ecosystem = await utils.prepare_message(
+        #     ecosystem.format_ecosystem(new_ecosystem)
+        # )
         # db.close()
-        return msg, ecosystem
+        return msg, new_ecosystem, ecosystem_to_add
 
     async def kill_ecosystem(
         self,
@@ -155,14 +164,14 @@ class GameOfLife:
             msg,
             prompt=prompt,
         )
-        ecosystem = await utils.prepare_message(
-            ecosystem.format_ecosystem(ecosystem.died_ecosystem())
-        )
+        # ecosystem = await utils.prepare_message(
+        #     ecosystem.format_ecosystem(ecosystem.died_ecosystem())
+        # )
         # db.close()
-        return msg, ecosystem
+        return msg, ecosystem.died_ecosystem(), died_ecosystem
 
     async def evolution(self, ecosystem_id, total_messages, new_ecosystem, evolutions):
-        ecosystem = Ecosystem()
+        # ecosystem = Ecosystem()
         msg = msgs.EVOLUTION
         logger.info(msg)
         evolutions += 1
@@ -180,8 +189,8 @@ class GameOfLife:
             msg,
             prompt=prompts.ECOSYSTEM_EVOLUTION,
         )
-        ecosystem = await utils.prepare_message(
-            ecosystem.format_ecosystem(new_ecosystem)
-        )
+        # ecosystem = await utils.prepare_message(
+        #     ecosystem.format_ecosystem(new_ecosystem)
+        # )
         # db.close()
-        return msg, ecosystem
+        return msg, new_ecosystem, ecosystem_alive

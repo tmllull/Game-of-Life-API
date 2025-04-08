@@ -1,11 +1,15 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from src.utils.config import Config
+from src.config.config import Config
+import os
 
 config = Config()
 
-db_path = "sqlite:///src/database/game_of_life.db"
+if not os.path.exists("database"):
+    os.makedirs("database")
+
+db_path = "sqlite:///database/game_of_life.db"
 
 engine = create_engine(
     db_path,

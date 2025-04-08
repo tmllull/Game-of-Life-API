@@ -8,6 +8,7 @@ class Config:
         try:
             # Load .env
             config = dotenv_values(".env")
+            self.API_KEY = config.get("API_KEY", os.environ.get("API_KEY"))
             self.AI_SERVICE = config.get("AI_SERVICE", os.environ.get("AI_SERVICE"))
             self.OPENAI_API_KEY = config.get(
                 "OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY")

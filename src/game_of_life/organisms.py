@@ -1,12 +1,10 @@
 import random
 
-import src.utils.logger as logger
-from src.utils.config import Config
+from src.utils.logger import LogManager
+from src.config.config import Config
 
 config = Config()
-
-
-import random
+logger = LogManager()
 
 
 class Organisms:

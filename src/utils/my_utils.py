@@ -2,28 +2,22 @@ import datetime
 import os
 import random
 
-import src.utils.logger as logger
+from src.utils.logger import LogManager
 from src.clients.ai_controller import AIController
-from src.database.database import SessionLocal
-from src.utils.config import Config
+from src.config.database import SessionLocal
+from src.config.config import Config
 
 config = Config()
 ai_controller = AIController()
+logger = LogManager()
 # db = SessionLocal()
-
-# leaving_gifs = [
-#     "CgACAgQAAx0CboIgbAACDO9mGWRx5aGU3t41YI9Yq09Bpr4VUgAC9wIAAlx1hVOKzWaxi1UfPjQE",
-#     "CgACAgQAAx0CboIgbAACDPJmGWWyJoHT8j3LujDLI1yGGqKtrQAC9QIAAuIXBFOxPQS1SLBLHDQE",
-#     "CgACAgQAAx0CboIgbAACDPNmGWXLAzWDlvIjK4RguK-0RMWBeQACIAMAAjG9JFOis1aOwCU45TQE",
-#     "CgACAgQAAx0CboIgbAACDPZmGWXqPTo5LhYS8cv2NHGhxWH8LwACMAMAAnxsFFPbZIBe-cVFwTQE",
-# ]
 
 
 class MyUtils:
     """_summary_"""
 
-    def __init__(self, db: SessionLocal = None):
-        self.db = db
+    # def __init__(self, db: SessionLocal = None):
+    #     self.db = db
 
     async def prepare_message(self, msg=None, prompt=None):
         if prompt is not None and ai_controller.has_service:

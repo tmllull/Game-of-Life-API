@@ -1,5 +1,4 @@
 python-dotenv
 sqlalchemy
 openai
-tiktoken
 fastapi[standard]

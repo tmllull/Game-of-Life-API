@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Date, Integer, String, UniqueConstraint
-from src.database.database import Base
+from src.config.database import Base
 
 
 class Ecosystem(Base):
