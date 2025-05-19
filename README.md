@@ -2,7 +2,7 @@
 
 ## About
 
-This project is an implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) using an API. The Game of Life is a cellular automaton devised by the British mathematician John Horton Conway in 1970. It is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input.
+This project is an implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) using an API. The Game of Life is a cellular automaton devised by the British mathematician John Horton Conway in 1970. It is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input. So, if Game of Life is an autonomous system, what is the purpose of this API?
 
 ## How it works
 
@@ -98,6 +98,8 @@ The prompts and pre-prompts are defined on `utils/prompts`
 
 Using GenAI, there are in mind some ideas, like to add "sentimental analysis" to the message and increase or decrease the probabilities based on this. For example, a happy message can reduce the probabilities to die (or increase to be alive), and viceserva.
 
+For now, only 1 ecosystem can be managed. I want to add a way to manage multiple ecosystems at the same time.
+
 ## How to use
 
 The recommended use is using Docker:
@@ -106,7 +108,7 @@ The recommended use is using Docker:
 2. Rename .env.template file to .env
 3. Fill the required parameters on .env, and change the probabilities if you want.
 4. Run docker compose with `docker compose up -d`
-5. Wait for your ecosystem to be born, and enjoy.
+5. Check the API docs on <http://localhost:5000/docs>, and check the /evolve endpoint to see how make a request to start evolutions
 
 ### Docker Compose
 
@@ -129,7 +131,7 @@ If you want to run directly with Python:
 3. Fill the required parameters on .env, and change the probabilities if you want.
 4. Run `pip install -r requirements.txt`
 5. Run `uvicorn app:app --port 5000` (this is for dev. If you want to deploy for prod, run the same command from CMD on Dockerfile)
-6. Wait for your ecosystem to be born, and enjoy.
+6. Check the API docs on <http://localhost:5000/docs>, and check the /evolve endpoint to see how make a request to start evolutions
 
 ## Some links
 
